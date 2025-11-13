@@ -41,6 +41,12 @@ openai.api_key = os.getenv('OPENAI_API_KEY')
 @bot.event
 async def on_ready():
     print(f"We are ready to hop in, {bot.user}")
+    # Sync slash commands
+    try:
+        synced = await bot.tree.sync()
+        print(f"Synced {len(synced)} command(s)")
+    except Exception as e:
+        print(f"Failed to sync commands: {e}")
 
 async def analyze_message_toxicity(content):
     """Analyze message using OpenAI for toxicity detection"""
@@ -312,6 +318,51 @@ async def help_command(ctx):
     )
     
     await ctx.send(embed=embed)
+
+# Slash Commands
+@bot.tree.command(name="report", description="View all users who have been censored by the bot")
+@discord.app_commands.checks.has_permissions(administrator=True)
+async def report(interaction: discord.Interaction):
+    """Show all censored users with their violation counts"""
+    if not user_violations:
+        embed = discord.Embed(
+            title="📊 Censorship Report",
+            description="No users have been censored yet.",
+            color=discord.Color.green()
+        )
+        await interaction.response.send_message(embed=embed)
+        return
+    
+    # Sort users by violation count (highest first)
+    sorted_violations = sorted(user_violations.items(), key=lambda x: x[1], reverse=True)
+    
+    embed = discord.Embed(
+        title="📊 Censorship Report",
+        description=f"Total censored users: **{len(sorted_violations)}**",
+        color=discord.Color.red(),
+        timestamp=datetime.now()
+    )
+    
+    # Add up to 25 users (Discord embed field limit)
+    for i, (user_id, count) in enumerate(sorted_violations[:25], 1):
+        member = interaction.guild.get_member(user_id)
+        if member:
+            embed.add_field(
+                name=f"{i}. {member.name}",
+                value=f"Violations: **{count}**\nID: `{user_id}`",
+                inline=False
+            )
+        else:
+            embed.add_field(
+                name=f"{i}. Unknown User",
+                value=f"Violations: **{count}**\nID: `{user_id}` (left server)",
+                inline=False
+            )
+    
+    if len(sorted_violations) > 25:
+        embed.set_footer(text=f"Showing top 25 of {len(sorted_violations)} users")
+    
+    await interaction.response.send_message(embed=embed)
 
 # Run the bot
 if __name__ == "__main__":
