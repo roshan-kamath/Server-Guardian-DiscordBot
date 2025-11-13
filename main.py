@@ -38,11 +38,9 @@ user_messages = defaultdict(list)
 # OpenAI client setup
 openai.api_key = os.getenv('OPENAI_API_KEY')
 
-
 @bot.event
 async def on_ready():
     print(f"We are ready to hop in, {bot.user}")
-
 
 async def analyze_message_toxicity(content):
     """Analyze message using OpenAI for toxicity detection"""
@@ -59,13 +57,12 @@ async def analyze_message_toxicity(content):
             ],
             temperature=0.3
         )
-
+        
         result = json.loads(response.choices[0].message.content)
         return result
     except Exception as e:
         print(f"Error analyzing message: {e}")
         return {"toxicity_score": 0, "categories": [], "reason": "Analysis failed"}
-
 
 async def check_spam(user_id):
     """Check if user is spamming"""
@@ -74,7 +71,6 @@ async def check_spam(user_id):
     user_messages[user_id].append(current_time)
     return len(user_messages[user_id]) >= config["spam_threshold"]
 
-
 async def log_to_mod_channel(guild, embed):
     """Log moderation action to mod channel"""
     if config["mod_log_channel"]:
@@ -82,13 +78,12 @@ async def log_to_mod_channel(guild, embed):
         if channel:
             await channel.send(embed=embed)
 
-
 @bot.event
 async def on_message(message):
     # Ignore bot messages
     if message.author == bot.user:
         return
-
+    
     # Process commands first
     await bot.process_commands(message)
 
@@ -96,17 +91,17 @@ async def on_message(message):
         await message.delete()
         await message.channel.send(f"{message.author.mention} - don't use that word!")
         return
-
+    
     # Skip if GuardianServer+ is disabled
     if not config["enabled"]:
         return
-
+    
     # Check for spam
     is_spam = await check_spam(message.author.id)
     if is_spam:
         await handle_violation(message, "spam", "Rapid message sending detected", 0.9)
         return
-
+    
     # Analyze message with AI
     analysis = await analyze_message_toxicity(message.content)
 
@@ -118,32 +113,30 @@ async def on_message(message):
             analysis["toxicity_score"]
         )
 
-
 @bot.event
 async def on_member_join(member):
     # Send welcome message to a channel (you can set which channel)
     # Option 1: Send to system channel (default welcome channel)
     if member.guild.system_channel:
         await member.guild.system_channel.send(f"Welcome {member.mention}! WE HOPE YOU BROUGHT SOME PASTA 🍝")
-
-    # Option 2: Also send a DM to the member
+    
+    # Option 2: Also send a DM to the user
     try:
-        await member.send(f"Welcome to {member.guild.name}! WE HOPE YOU BROUGHT SOME PASTA 🍝")
+        await member.send(f"{member.name}, WE HOPE YOU BROUGHT SOME PASTA 🍝")
     except discord.Forbidden:
         print(f"Could not DM {member.name}")
-
 
 async def handle_violation(message, violation_type, reason, score):
     """Handle a content violation"""
     user_violations[message.author.id] += 1
     violation_count = user_violations[message.author.id]
-
+    
     # Delete the message
     try:
         await message.delete()
     except:
         pass
-
+    
     # Create log embed
     embed = discord.Embed(
         title="🚨 Content Violation Detected",
@@ -158,10 +151,10 @@ async def handle_violation(message, violation_type, reason, score):
     embed.add_field(name="Message Content", value=message.content[:1024], inline=False)
     embed.add_field(name="Violation Count", value=f"{violation_count}/{config['auto_mute_violations']}", inline=True)
     embed.set_footer(text=f"User ID: {message.author.id}")
-
+    
     # Log to mod channel
     await log_to_mod_channel(message.guild, embed)
-
+    
     # Warn user
     try:
         warning_embed = discord.Embed(
@@ -170,18 +163,17 @@ async def handle_violation(message, violation_type, reason, score):
             color=discord.Color.orange()
         )
         warning_embed.add_field(
-            name="Violations",
+            name="Violations", 
             value=f"{violation_count}/{config['auto_mute_violations']} (Auto-mute threshold)",
             inline=False
         )
         await message.author.send(embed=warning_embed)
     except:
         pass
-
+    
     # Auto-mute if threshold reached
     if violation_count >= config["auto_mute_violations"]:
         await auto_mute_user(message.guild, message.author)
-
 
 async def auto_mute_user(guild, member):
     """Automatically mute a user"""
@@ -193,13 +185,13 @@ async def auto_mute_user(guild, member):
             # Set permissions for muted role
             for channel in guild.channels:
                 await channel.set_permissions(muted_role, speak=False, send_messages=False)
-
+        
         await member.add_roles(muted_role, reason="Auto-muted: Exceeded violation threshold")
-
+        
         # Schedule unmute
         await asyncio.sleep(config["mute_duration"])
         await member.remove_roles(muted_role, reason="Auto-mute duration expired")
-
+        
         # Log unmute
         unmute_embed = discord.Embed(
             title="🔓 User Auto-Unmuted",
@@ -208,10 +200,9 @@ async def auto_mute_user(guild, member):
             timestamp=datetime.now()
         )
         await log_to_mod_channel(guild, unmute_embed)
-
+        
     except Exception as e:
         print(f"Error muting user: {e}")
-
 
 # Admin Commands
 @bot.command(name='config')
@@ -224,12 +215,11 @@ async def show_config(ctx):
     embed.add_field(name="Spam Threshold", value=f"{config['spam_threshold']} msgs/10s", inline=True)
     embed.add_field(name="Auto-Mute After", value=f"{config['auto_mute_violations']} violations", inline=True)
     embed.add_field(name="Mute Duration", value=f"{config['mute_duration']}s", inline=True)
-
+    
     mod_channel = ctx.guild.get_channel(config["mod_log_channel"]) if config["mod_log_channel"] else None
     embed.add_field(name="Mod Log Channel", value=mod_channel.mention if mod_channel else "Not set", inline=True)
-
+    
     await ctx.send(embed=embed)
-
 
 @bot.command(name='setlogchannel')
 @commands.has_permissions(administrator=True)
@@ -237,7 +227,6 @@ async def set_log_channel(ctx, channel: discord.TextChannel):
     """Set the mod log channel"""
     config["mod_log_channel"] = channel.id
     await ctx.send(f"✅ Mod log channel set to {channel.mention}")
-
 
 @bot.command(name='setthreshold')
 @commands.has_permissions(administrator=True)
@@ -249,7 +238,6 @@ async def set_threshold(ctx, threshold: float):
     else:
         await ctx.send("❌ Threshold must be between 0 and 1")
 
-
 @bot.command(name='toggle')
 @commands.has_permissions(administrator=True)
 async def toggle_guardian(ctx):
@@ -258,14 +246,12 @@ async def toggle_guardian(ctx):
     status = "enabled" if config["enabled"] else "disabled"
     await ctx.send(f"✅ Server Guardian+ {status}")
 
-
 @bot.command(name='resetviolations')
 @commands.has_permissions(administrator=True)
 async def reset_violations(ctx, member: discord.Member):
     """Reset violation count for a user"""
     user_violations[member.id] = 0
     await ctx.send(f"✅ Violations reset for {member.mention}")
-
 
 @bot.command(name='violations')
 @commands.has_permissions(administrator=True)
@@ -278,18 +264,17 @@ async def show_violations(ctx, member: discord.Member = None):
         if not user_violations:
             await ctx.send("No violations recorded yet")
             return
-
+        
         # Show top 10 violators
         sorted_violations = sorted(user_violations.items(), key=lambda x: x[1], reverse=True)[:10]
         embed = discord.Embed(title="📊 Top Violators", color=discord.Color.red())
-
+        
         for user_id, count in sorted_violations:
             member = ctx.guild.get_member(user_id)
             if member:
                 embed.add_field(name=str(member), value=f"{count} violations", inline=False)
-
+        
         await ctx.send(embed=embed)
-
 
 @bot.command(name='help')
 async def help_command(ctx):
@@ -299,7 +284,7 @@ async def help_command(ctx):
         description="Next-gen AI-powered moderation bot",
         color=discord.Color.blue()
     )
-
+    
     embed.add_field(
         name="Admin Commands",
         value="""
@@ -312,7 +297,7 @@ async def help_command(ctx):
         """,
         inline=False
     )
-
+    
     embed.add_field(
         name="Features",
         value="""
@@ -325,9 +310,8 @@ async def help_command(ctx):
         """,
         inline=False
     )
-
+    
     await ctx.send(embed=embed)
-
 
 # Run the bot
 if __name__ == "__main__":
@@ -335,4 +319,28 @@ if __name__ == "__main__":
     if not token:
         print("Error: DISCORD_TOKEN not found in environment variables")
     else:
-        bot.run(token, log_handler=handler, log_level=logging.DEBUG)
+        # Start a simple HTTP server for Render health checks (only if PORT env var exists)
+        port = os.getenv('PORT')
+        if port:
+            from aiohttp import web
+            
+            async def health_check(request):
+                return web.Response(text="Bot is running!")
+            
+            async def start_bot():
+                await bot.start(token)
+            
+            app = web.Application()
+            app.router.add_get('/', health_check)
+            
+            async def run_all():
+                runner = web.AppRunner(app)
+                await runner.setup()
+                site = web.TCPSite(runner, '0.0.0.0', int(port))
+                await site.start()
+                await start_bot()
+            
+            asyncio.run(run_all())
+        else:
+            # Running as Background Worker
+            bot.run(token, log_handler=handler, log_level=logging.DEBUG)
