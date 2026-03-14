@@ -22,6 +22,7 @@ A smart Discord moderation bot powered by Google's Gemini AI that helps keep you
 The bot watches your server channels and runs messages through Gemini AI to detect problematic content. When something gets flagged, it immediately deletes the message, warns the user, and logs everything for your mod team. After a configurable number of warnings, users get auto-muted to give everyone a breather.
 
 ![Demo](demo-screenshot.png)
+
 *Real example: The bot caught a vulgar word, deleted it, and warned the user—all automatically*
 
 ## 🚀 Quick Setup
