@@ -1,65 +1,61 @@
 # 🛡️ Server Guardian+
 
-An AI-powered Discord moderation bot that leverages Google's Gemini API to automatically detect and handle toxicity, spam, and hate speech in real-time. Keep your Discord community safe and organized with intelligent, context-aware moderation.
+A smart Discord moderation bot powered by Google's Gemini AI that helps keep your server clean by catching toxicity, spam, and hate speech before it becomes a problem.
 
 ![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)
 ![Discord.py](https://img.shields.io/badge/discord.py-2.0+-blue.svg)
 ![Gemini](https://img.shields.io/badge/Google-Gemini%20API-4285F4.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 
-## ✨ Features
+## ✨ What It Does
 
-- 🤖 **AI-Powered Detection** - Uses Google's Gemini API for contextual understanding of toxicity, hate speech, and spam
-- ⚡ **Real-Time Moderation** - Automatically detects and deletes inappropriate messages
-- ⚙️ **Configurable Thresholds** - Customize warning and mute thresholds based on your community needs
-- 📊 **Detailed Logging** - Maintains comprehensive moderation logs in dedicated mod-only channels
-- 🔔 **Warning System** - Progressive warning system before taking stricter actions
-- 🔇 **Auto-Mute** - Automatically mutes repeat offenders based on warning count
-- 📋 **Moderation Dashboard** - Easy-to-read logs for moderators to track incidents
+- 🤖 **Smart Detection** - Uses Google's Gemini AI to understand context and catch toxic behavior, not just keywords
+- ⚡ **Instant Response** - Catches and removes harmful messages in real-time
+- ⚙️ **Fully Customizable** - Set your own warning limits and rules that fit your community
+- 📊 **Transparent Logging** - Every action gets logged so moderators can review what happened
+- 🔔 **Fair Warning System** - Users get warnings before facing serious consequences
+- 🔇 **Auto-Timeout** - Repeat offenders get automatically muted after too many strikes
+- 📋 **Easy to Track** - Clean, organized logs make moderation review simple
 
 ## 🎯 How It Works
 
-1. **Message Monitoring** - The bot monitors all messages in configured channels
-2. **AI Analysis** - Each message is analyzed by Google's Gemini API for toxic content
-3. **Instant Action** - Detected violations trigger immediate deletion and user warnings
-4. **Progressive Enforcement** - Multiple warnings lead to automatic muting
-5. **Audit Trail** - All actions are logged for moderator review
+The bot watches your server channels and runs messages through Gemini AI to detect problematic content. When something gets flagged, it immediately deletes the message, warns the user, and logs everything for your mod team. After a configurable number of warnings, users get auto-muted to give everyone a breather.
 
 ![Demo](demo-screenshot.png)
-*Example: Bot detecting and removing vulgar language while warning the user*
+*Real example: The bot caught a vulgar word, deleted it, and warned the user—all automatically*
 
-## 🚀 Getting Started
+## 🚀 Quick Setup
 
-### Prerequisites
+### What You'll Need
 
-- Python 3.8 or higher
-- Discord Bot Token
-- Google Gemini API Key
+- Python 3.8 or newer
+- A Discord Bot Token ([get one here](https://discord.com/developers/applications))
+- A Google Gemini API Key ([get one here](https://ai.google.dev/))
 
-### Installation
+### Getting Started
 
-1. **Clone the repository**
+1. **Download the code**
 ```bash
    git clone https://github.com/yourusername/server-guardian-plus.git
    cd server-guardian-plus
 ```
 
-2. **Install dependencies**
+2. **Install what it needs**
 ```bash
    pip install -r requirements.txt
 ```
 
-3. **Set up environment variables**
+3. **Add your keys**
    
-   Create a `.env` file in the root directory:
+   Create a `.env` file and add:
 ```env
    DISCORD_TOKEN=your_discord_bot_token
    GEMINI_API_KEY=your_gemini_api_key
 ```
 
-4. **Configure the bot**
+4. **Tweak the settings** (optional)
    
-   Edit `config.json` to customize settings:
+   Open `config.json` and adjust to your liking:
 ```json
    {
      "warning_threshold": 3,
@@ -69,94 +65,98 @@ An AI-powered Discord moderation bot that leverages Google's Gemini API to autom
    }
 ```
 
-5. **Run the bot**
+5. **Fire it up!**
 ```bash
    python bot.py
 ```
 
-## 📝 Configuration
+## 📝 Settings You Can Change
 
-### config.json Parameters
+### config.json Options
 
-| Parameter | Description | Default |
-|-----------|-------------|---------|
-| `warning_threshold` | Number of warnings before auto-mute | 3 |
-| `mute_duration` | Mute duration in seconds | 600 (10 min) |
-| `log_channel_id` | Channel ID for moderation logs | - |
-| `moderation_enabled` | Enable/disable auto-moderation | true |
-| `toxicity_threshold` | AI confidence threshold (0-1) | 0.7 |
+| Setting | What It Does | Default |
+|---------|-------------|---------|
+| `warning_threshold` | Warnings before auto-mute kicks in | 3 |
+| `mute_duration` | How long mutes last (in seconds) | 600 (10 min) |
+| `log_channel_id` | Where to send mod logs | - |
+| `moderation_enabled` | Turn auto-mod on/off | true |
+| `toxicity_threshold` | How confident the AI needs to be (0-1) | 0.7 |
 
 ## 🎮 Commands
 
-| Command | Description | Permission |
+| Command | What It Does | Who Can Use It |
 |---------|-------------|------------|
-| `!warnings @user` | Check warning count for a user | Moderator |
-| `!clearwarnings @user` | Clear warnings for a user | Admin |
-| `!config` | View current bot configuration | Admin |
-| `!toggle` | Enable/disable moderation | Admin |
+| `!warnings @user` | See how many warnings someone has | Moderators |
+| `!clearwarnings @user` | Reset someone's warnings | Admins |
+| `!config` | Check current settings | Admins |
+| `!toggle` | Turn moderation on/off | Admins |
 
-## 🔧 Tech Stack
+## 🔧 Built With
 
-- **Language**: Python 3.8+
-- **Discord Library**: discord.py 2.0+
-- **AI/ML**: Google Gemini API
-- **Environment Management**: python-dotenv
-- **Data Storage**: JSON (expandable to database)
+- **Python 3.8+** - The backbone of the bot
+- **discord.py 2.0+** - For Discord integration
+- **Google Gemini API** - The AI brain doing the heavy lifting
+- **python-dotenv** - Keeps your secrets safe
+- **JSON** - Simple data storage (can upgrade to a database later)
 
-## 📂 Project Structure
+## 📂 What's Inside
 ```
 server-guardian-plus/
 │
-├── bot.py                 # Main bot file
+├── bot.py                 # The main bot code
 ├── cogs/
 │   ├── moderation.py      # Moderation commands and logic
-│   └── logging.py         # Logging functionality
+│   └── logging.py         # Handles all the logging
 ├── utils/
 │   ├── ai_moderator.py    # Gemini API integration
-│   └── database.py        # Warning/user data management
-├── config.json            # Configuration file
-├── requirements.txt       # Python dependencies
-├── .env.example          # Environment variables template
-└── README.md             # Documentation
+│   └── database.py        # Tracks warnings and user data
+├── config.json            # Your settings
+├── requirements.txt       # Everything the bot needs to run
+├── .env.example          # Template for your API keys
+└── README.md             # You're reading it!
 ```
 
-## 🤝 Contributing
+## 🤝 Want to Contribute?
 
-Contributions are welcome! Please follow these steps:
+I'd love your help making this better! Here's how:
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+1. Fork this repo
+2. Create your feature branch (`git checkout -b feature/CoolNewFeature`)
+3. Commit your changes (`git commit -m 'Added something cool'`)
+4. Push it up (`git push origin feature/CoolNewFeature`)
+5. Open a Pull Request and let's chat!
 
-## 📋 Roadmap
+## 📋 What's Next
 
-- [ ] Add multi-language support
-- [ ] Implement database storage (PostgreSQL/MongoDB)
-- [ ] Create web dashboard for analytics
-- [ ] Add custom word filters
-- [ ] Implement appeal system
-- [ ] Support for image/media moderation
+Here's what I'm thinking about adding:
 
-## ⚠️ Disclaimer
+- [ ] Support for multiple languages
+- [ ] Proper database (PostgreSQL or MongoDB)
+- [ ] Web dashboard with stats and analytics
+- [ ] Custom word filters you can manage
+- [ ] User appeal system for false positives
+- [ ] Image and media moderation
 
-This bot uses AI for content moderation, which may not be 100% accurate. Always have human moderators review flagged content. The bot is designed to assist, not replace, human moderation.
+## ⚠️ Fair Warning
+
+This bot uses AI, which is pretty smart but not perfect. You should still have human moderators review flagged content regularly. Think of this as a helpful assistant, not a replacement for your mod team.
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License - basically, use it however you want! See the [LICENSE](LICENSE) file for the legal stuff.
 
-## 🙏 Acknowledgments
+## 🙏 Thanks To
 
-- [Discord.py](https://github.com/Rapptz/discord.py) - Discord API wrapper
-- [Google Gemini](https://ai.google.dev/) - AI moderation capabilities
-- Discord community for testing and feedback
+- [Discord.py](https://github.com/Rapptz/discord.py) - For making Discord bots actually doable
+- [Google Gemini](https://ai.google.dev/) - For the AI magic
+- Everyone who tested this and gave feedback
 
-## 📧 Contact
+## 📧 Let's Connect
 
-LinkedIn Profile: www.linkedin.com/in/roshan-kamath-9806b337b 
+Want to chat about the project or have questions?
+
+**LinkedIn:** www.linkedin.com/in/roshan-kamath-9806b337b
 
 ---
 
-⭐ If you found this project helpful, please consider giving it a star!
+⭐ If this helped your server, drop a star! It means a lot and keeps me motivated to improve it.
